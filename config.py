@@ -2,8 +2,6 @@
 
 import os
 from dotenv import load_dotenv
-
-# Muat variabel dari file .env ke dalam lingkungan
 load_dotenv()
 
 # --- Konfigurasi Krusial ---
@@ -26,4 +24,5 @@ LOG_GROUP_ID = int(os.getenv("LOG_GROUP_ID", 0))
 # Prefix awal untuk perintah
 
 PREFIX = os.getenv("PREFIX", ".")
+
 
