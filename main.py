@@ -6,9 +6,6 @@ from pyrogram import idle
 from core.client import VzoelUbot
 from core.database import initialize_database
 
-# Menginstal uvloop untuk performa asyncio yang lebih baik
-uvloop.install()
-
 async def main():
     """Fungsi utama untuk menginisialisasi dan menjalankan userbot."""
     print("[INFO] Memulai proses inisialisasi Userbot...")
