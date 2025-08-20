@@ -1,6 +1,7 @@
 # VzoelUbotversi69 #byVzoelFox's #©2025 ~ Vzoel (Lutpan)
 
 import os
+import uvloop
 from dotenv import load_dotenv
 
 # Muat variabel dari file .env ke dalam lingkungan
@@ -24,4 +25,5 @@ OWNER_ID = int(os.getenv("OWNER_ID", 0))
 LOG_GROUP_ID = int(os.getenv("LOG_GROUP_ID", 0))
 
 # Prefix awal untuk perintah
+
 PREFIX = os.getenv("PREFIX", ".")
