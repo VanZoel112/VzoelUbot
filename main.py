@@ -1,7 +1,6 @@
 # VzoelUbotversi69 #byVzoelFox's #©2025 ~ Vzoel (Lutpan)
 
 import asyncio
-import uvloop
 from pyrogram import idle
 
 from core.client import VzoelUbot
