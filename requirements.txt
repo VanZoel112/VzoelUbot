@@ -1,12 +1,8 @@
-# Core Telegram library
+# requirements.txt
+# Dependensi dasar yang berjalan di semua lingkungan
+
 pyrogram
-
-# Untuk performa asyncio yang lebih cepat
-uvloop
-
-# Database driver untuk MongoDB
 motor
-
-# Untuk membaca variabel dari file .env
-
 python-dotenv
+pytest
+pytest-asyncio
