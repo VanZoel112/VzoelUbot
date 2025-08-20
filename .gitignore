@@ -1,0 +1,23 @@
+# File environment yang berisi kunci rahasia
+.env
+
+# Cache Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Lingkungan virtual
+venv/
+.venv/
+
+# File session Telegram
+*.session
+*.session-journal
+
+# File log
+data/logs/
+*.log
+
+# File IDE/editor
+.vscode/
+.idea/
