@@ -10,11 +10,6 @@ motor
 # Untuk memuat variabel dari file .env
 python-dotenv
 
-# --- Pustaka untuk Fitur Spesifik ---
-# Pustaka khusus untuk menangani Obrolan Suara (Voice Chat)
-# Pastikan Anda menginstal versi yang kompatibel dengan Pyrogram V2
-py-tgcalls[pyrogram]
-
 # --- Pustaka untuk Pengembangan & Pengujian ---
 # Framework untuk menjalankan tes otomatis (digunakan oleh GitHub Actions)
 pytest
