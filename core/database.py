@@ -1,103 +1,85 @@
 # VzoelUbotversi69 #byVzoelFox's #©2025 ~ Vzoel (Lutpan)
+# Arsitektur Database Revisi: SQLite
 
-from motor.motor_asyncio import AsyncIOMotorClient
-from config import MONGO_DB_URI
-from typing import Optional, Dict, Any, Union
+import aiosqlite
+from typing import Optional, Dict, Any, Union, List
 from datetime import datetime
 
-# Inisialisasi MongoDB client dan database
-client = AsyncIOMotorClient(MONGO_DB_URI)
-db = client.VzoelUbotDB
+# Lokasi file database lokal
+DB_PATH = "data/vzoelubot.db"
 
-# Mendefinisikan semua koleksi (collections)
-settings_collection = db.settings
-custom_strings_collection = db.custom_strings
-blacklist_collection = db.gcast_blacklist
+async def get_db_connection():
+    """Membuka koneksi ke database SQLite."""
+    return await aiosqlite.connect(DB_PATH)
 
-# --- Settings Functions ---
-async def set_setting(key: str, value: Union[bool, str, int]) -> bool:
-    """Menyimpan pengaturan ke database."""
+async def initialize_database():
+    """Menginisialisasi database dan membuat tabel jika belum ada."""
     try:
-        await settings_collection.update_one(
-            {"key": key}, 
-            {"$set": {"value": value}}, 
-            upsert=True
-        )
+        async with get_db_connection() as db:
+            await db.execute("""
+                CREATE TABLE IF NOT EXISTS settings (
+                    key TEXT PRIMARY KEY,
+                    value TEXT
+                )
+            """)
+            await db.execute("""
+                CREATE TABLE IF NOT EXISTS blacklist (
+                    chat_id INTEGER PRIMARY KEY,
+                    reason TEXT,
+                    added_at TEXT
+                )
+            """)
+            # Kita akan menyimpan custom strings di tabel settings untuk kesederhanaan
+            await db.commit()
+        print("[INFO] Database SQLite berhasil diinisialisasi.")
         return True
     except Exception as e:
-        print(f"[ERROR] Gagal menyimpan pengaturan {key}: {e}")
+        print(f"[ERROR] Inisialisasi database SQLite gagal: {e}")
         return False
+
+# --- Settings & Custom Strings Functions ---
+async def set_setting(key: str, value: Any):
+    """Menyimpan pengaturan atau custom string."""
+    async with get_db_connection() as db:
+        await db.execute(
+            "INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)",
+            (key.upper(), str(value))
+        )
+        await db.commit()
 
 async def get_setting(key: str, default: Any = None) -> Any:
-    """Mengambil pengaturan dari database dengan fallback default."""
-    try:
-        setting = await settings_collection.find_one({"key": key})
-        return setting["value"] if setting else default
-    except Exception as e:
-        print(f"[ERROR] Gagal mengambil pengaturan {key}: {e}")
-        return default
-
-# --- Custom Strings Functions ---
-async def load_all_custom_strings() -> Dict[str, str]:
-    """Memuat semua custom string dari database."""
-    try:
-        result = await custom_strings_collection.find_one({"_id": "strings"})
-        return result.get("data", {}) if result else {}
-    except Exception as e:
-        print(f"[ERROR] Gagal memuat custom strings: {e}")
-        return {}
+    """Mengambil pengaturan atau custom string."""
+    async with get_db_connection() as db:
+        cursor = await db.execute("SELECT value FROM settings WHERE key = ?", (key.upper(),))
+        row = await cursor.fetchone()
+        return row[0] if row else default
 
 # --- Blacklist Functions ---
-async def add_to_blacklist(chat_id: int, reason: str = "") -> bool:
-    """Menambahkan chat ke blacklist gcast."""
-    try:
-        await blacklist_collection.update_one(
-            {"chat_id": chat_id},
-            {"$set": {"chat_id": chat_id, "reason": reason, "added_at": datetime.utcnow()}},
-            upsert=True
+async def add_to_blacklist(chat_id: int, reason: str = ""):
+    """Menambahkan chat ke blacklist."""
+    async with get_db_connection() as db:
+        await db.execute(
+            "INSERT OR REPLACE INTO blacklist (chat_id, reason, added_at) VALUES (?, ?, ?)",
+            (chat_id, reason, datetime.utcnow().isoformat())
         )
-        return True
-    except Exception as e:
-        print(f"[ERROR] Gagal menambahkan ke blacklist {chat_id}: {e}")
-        return False
+        await db.commit()
 
-async def remove_from_blacklist(chat_id: int) -> bool:
-    """Menghapus chat dari blacklist gcast."""
-    try:
-        result = await blacklist_collection.delete_one({"chat_id": chat_id})
-        return result.deleted_count > 0
-    except Exception as e:
-        print(f"[ERROR] Gagal menghapus dari blacklist {chat_id}: {e}")
-        return False
+async def remove_from_blacklist(chat_id: int):
+    """Menghapus chat dari blacklist."""
+    async with get_db_connection() as db:
+        await db.execute("DELETE FROM blacklist WHERE chat_id = ?", (chat_id,))
+        await db.commit()
 
 async def is_blacklisted(chat_id: int) -> bool:
     """Memeriksa apakah sebuah chat ada di dalam blacklist."""
-    try:
-        result = await blacklist_collection.find_one({"chat_id": chat_id})
-        return result is not None
-    except Exception as e:
-        print(f"[ERROR] Gagal memeriksa blacklist {chat_id}: {e}")
-        return False
+    async with get_db_connection() as db:
+        cursor = await db.execute("SELECT 1 FROM blacklist WHERE chat_id = ?", (chat_id,))
+        return await cursor.fetchone() is not None
 
-async def get_blacklist() -> list:
+async def get_blacklist() -> List[Dict]:
     """Mengambil semua chat yang ada di blacklist."""
-    try:
-        cursor = blacklist_collection.find({})
-        return [doc async for doc in cursor]
-    except Exception as e:
-        print(f"[ERROR] Gagal mengambil blacklist: {e}")
-        return []
-
-# --- Database Health & Initialization ---
-async def initialize_database():
-    """Menginisialisasi database dan membuat index jika diperlukan."""
-    try:
-        await client.admin.command('ping')
-        # Membuat index untuk memastikan performa query yang cepat dan data yang unik
-        await settings_collection.create_index("key", unique=True)
-        await blacklist_collection.create_index("chat_id", unique=True)
-        print("[INFO] Koneksi database berhasil dan index dipastikan ada.")
-        return True
-    except Exception as e:
-        print(f"[ERROR] Inisialisasi database gagal: {e}")
-        return False
+    async with get_db_connection() as db:
+        db.row_factory = aiosqlite.Row
+        cursor = await db.execute("SELECT * FROM blacklist")
+        rows = await cursor.fetchall()
+        return [dict(row) for row in rows]
