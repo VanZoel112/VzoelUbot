@@ -1,5 +1,5 @@
 # VzoelUbotversi69 #byVzoelFox's #©2025 ~ Vzoel (Lutpan)
-# Arsitektur Database Revisi: SQLite
+# Arsitektur Database Revisi Final: SQLite
 
 import aiosqlite
 from typing import Optional, Dict, Any, Union, List
@@ -8,14 +8,11 @@ from datetime import datetime
 # Lokasi file database lokal
 DB_PATH = "data/vzoelubot.db"
 
-async def get_db_connection():
-    """Membuka koneksi ke database SQLite."""
-    return await aiosqlite.connect(DB_PATH)
-
 async def initialize_database():
     """Menginisialisasi database dan membuat tabel jika belum ada."""
     try:
-        async with get_db_connection() as db:
+        # Langsung menggunakan aiosqlite.connect di dalam async with
+        async with aiosqlite.connect(DB_PATH) as db:
             await db.execute("""
                 CREATE TABLE IF NOT EXISTS settings (
                     key TEXT PRIMARY KEY,
@@ -29,7 +26,6 @@ async def initialize_database():
                     added_at TEXT
                 )
             """)
-            # Kita akan menyimpan custom strings di tabel settings untuk kesederhanaan
             await db.commit()
         print("[INFO] Database SQLite berhasil diinisialisasi.")
         return True
@@ -40,7 +36,7 @@ async def initialize_database():
 # --- Settings & Custom Strings Functions ---
 async def set_setting(key: str, value: Any):
     """Menyimpan pengaturan atau custom string."""
-    async with get_db_connection() as db:
+    async with aiosqlite.connect(DB_PATH) as db:
         await db.execute(
             "INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)",
             (key.upper(), str(value))
@@ -49,7 +45,7 @@ async def set_setting(key: str, value: Any):
 
 async def get_setting(key: str, default: Any = None) -> Any:
     """Mengambil pengaturan atau custom string."""
-    async with get_db_connection() as db:
+    async with aiosqlite.connect(DB_PATH) as db:
         cursor = await db.execute("SELECT value FROM settings WHERE key = ?", (key.upper(),))
         row = await cursor.fetchone()
         return row[0] if row else default
@@ -57,7 +53,7 @@ async def get_setting(key: str, default: Any = None) -> Any:
 # --- Blacklist Functions ---
 async def add_to_blacklist(chat_id: int, reason: str = ""):
     """Menambahkan chat ke blacklist."""
-    async with get_db_connection() as db:
+    async with aiosqlite.connect(DB_PATH) as db:
         await db.execute(
             "INSERT OR REPLACE INTO blacklist (chat_id, reason, added_at) VALUES (?, ?, ?)",
             (chat_id, reason, datetime.utcnow().isoformat())
@@ -66,20 +62,18 @@ async def add_to_blacklist(chat_id: int, reason: str = ""):
 
 async def remove_from_blacklist(chat_id: int):
     """Menghapus chat dari blacklist."""
-    async with get_db_connection() as db:
+    async with aiosqlite.connect(DB_PATH) as db:
         await db.execute("DELETE FROM blacklist WHERE chat_id = ?", (chat_id,))
         await db.commit()
 
 async def is_blacklisted(chat_id: int) -> bool:
     """Memeriksa apakah sebuah chat ada di dalam blacklist."""
-    async with get_db_connection() as db:
+    async with aiosqlite.connect(DB_PATH) as db:
         cursor = await db.execute("SELECT 1 FROM blacklist WHERE chat_id = ?", (chat_id,))
         return await cursor.fetchone() is not None
 
 async def get_blacklist() -> List[Dict]:
     """Mengambil semua chat yang ada di blacklist."""
-    async with get_db_connection() as db:
+    async with aiosqlite.connect(DB_PATH) as db:
         db.row_factory = aiosqlite.Row
-        cursor = await db.execute("SELECT * FROM blacklist")
-        rows = await cursor.fetchall()
-        return [dict(row) for row in rows]
+        cursor = await db.execute("SELECT *
