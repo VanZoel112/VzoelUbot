@@ -89,4 +89,4 @@ async def get_blacklist() -> list:
         return []
 
 # --- Database Health & Initialization ---
-async def() initialize_database
+async def initialize_database():
