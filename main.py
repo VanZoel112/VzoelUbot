@@ -1,4 +1,5 @@
 # VzoelUbotversi69 #byVzoelFox's #©2025 ~ Vzoel (Lutpan)
+# main.py (VERSI REVISI FINAL)
 
 import asyncio
 import importlib
@@ -61,6 +62,8 @@ async def main():
     try:
         LOGGER.info("Menjalankan Userbot...")
         await app.start()
+        
+        # Memuat plugins setelah client berhasil terhubung
         await load_plugins(app)
         
         bot_info = await app.get_me()
@@ -72,6 +75,8 @@ async def main():
         LOGGER.info("Userbot sekarang online. Menunggu perintah...")
         await idle()
         
+    except (KeyboardInterrupt, SystemExit):
+        LOGGER.info("Menerima sinyal berhenti...")
     except Exception as e:
         LOGGER.fatal(f"Terjadi kesalahan saat menjalankan Userbot: {e}", exc_info=True)
     finally:
