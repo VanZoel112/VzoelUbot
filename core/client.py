@@ -1,58 +1,42 @@
-# VzoelUbotversi69 #byVzoelFox's #©2025 ~ Vzoel (Lutpan)
+# config.py (Versi Final & Revisi Lengkap)
 
 import os
-import sys
-import logging
-import time  # <-- Pastikan 'time' sudah diimpor
-from pyrogram import Client
+from dotenv import load_dotenv
 
-# Impor konfigurasi dari file config.py
-from config import (
-    API_ID,
-    API_HASH,
-    BOT_TOKEN,
-    OWNER_ID,
-    PREFIX,
-)
+# Muat variabel dari file .env ke dalam lingkungan
+load_dotenv()
 
-# Konfigurasi logging dasar
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
-LOGGER = logging.getLogger(__name__)
+# --- Konfigurasi Krusial ---
+# Ambil dari my.telegram.org
+API_ID = int(os.getenv("API_ID", 0))
+API_HASH = os.getenv("API_HASH", "")
+
+# Ambil dari @BotFather di Telegram
+BOT_TOKEN = os.getenv("BOT_TOKEN", "")
+
+# URL koneksi database MongoDB Anda
+MONGO_DB_URI = os.getenv("MONGO_DB_URI", "")
+
+# ID Pengguna Anda (founder/owner)
+OWNER_ID = int(os.getenv("OWNER_ID", 0))
+
+# ID Grup untuk log (opsional)
+LOG_GROUP_ID = int(os.getenv("LOG_GROUP_ID", 0))
+
+# String Sesi yang dihasilkan dari generate_session.py
+SESSION_STRING = os.getenv("SESSION_STRING", "")
+
+# --- BARIS YANG HILANG SEBELUMNYA ---
+# Prefix awal untuk perintah, diambil dari .env
+PREFIX = os.getenv("PREFIX", ".")
+# ------------------------------------
 
 
-class VzoelUbot(Client):
-    """
-    Kelas Userbot utama yang mewarisi dari pyrogram.Client.
-    Ini akan menangani inisialisasi client dan memuat semua komponen.
-    """
-    def __init__(self):
-        super().__init__(
-            "VzoelUbot",  # Nama sesi
-            api_id=API_ID,
-            api_hash=API_HASH,
-            bot_token=BOT_TOKEN,
-            # Kita akan menghapus `plugins=` dari sini jika menggunakan pemuat manual
-            workers=24,
-            sleep_threshold=180,
-        )
-        self.LOGGER = LOGGER
-        self.owner_id = OWNER_ID
-        self.prefix = PREFIX
-        
-        # --- REVISI DITAMBAHKAN DI SINI ---
-        # Mencatat waktu mulai bot dengan presisi saat objek diciptakan.
-        self.start_time = time.time()
-        # ------------------------------------
+# Memastikan variabel krusial terisi (opsional, tapi praktik baik)
+if not API_ID or not API_HASH:
+    print("[FATAL ERROR] API_ID atau API_HASH tidak ditemukan. Harap isi di file .env")
+    exit(1)
 
-    async def start(self):
-        """Memulai client userbot dan mencetak pesan status."""
-        await super().start()
-        self.LOGGER.info("Userbot telah berhasil dimulai.")
-
-    async def stop(self):
-        """Menghentikan client userbot."""
-        await super().stop()
-        self.LOGGER.info("Userbot telah berhasil dihentikan.")
+if not SESSION_STRING and not BOT_TOKEN:
+    print("[FATAL ERROR] BOT_TOKEN atau SESSION_STRING tidak ditemukan. Salah satu harus diisi.")
+    exit(1)
