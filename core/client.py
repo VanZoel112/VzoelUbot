@@ -3,6 +3,7 @@
 import os
 import sys
 import logging
+import time  # <-- Pastikan 'time' sudah diimpor
 from pyrogram import Client
 
 # Impor konfigurasi dari file config.py
@@ -33,13 +34,18 @@ class VzoelUbot(Client):
             api_id=API_ID,
             api_hash=API_HASH,
             bot_token=BOT_TOKEN,
-            plugins=dict(root="plugins"),  # Secara otomatis memuat plugin dari folder 'plugins'
-            workers=24,  # Jumlah thread worker
+            # Kita akan menghapus `plugins=` dari sini jika menggunakan pemuat manual
+            workers=24,
             sleep_threshold=180,
         )
         self.LOGGER = LOGGER
         self.owner_id = OWNER_ID
         self.prefix = PREFIX
+        
+        # --- REVISI DITAMBAHKAN DI SINI ---
+        # Mencatat waktu mulai bot dengan presisi saat objek diciptakan.
+        self.start_time = time.time()
+        # ------------------------------------
 
     async def start(self):
         """Memulai client userbot dan mencetak pesan status."""
