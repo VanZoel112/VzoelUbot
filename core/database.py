@@ -90,3 +90,14 @@ async def get_blacklist() -> list:
 
 # --- Database Health & Initialization ---
 async def initialize_database():
+    """Menginisialisasi database dan membuat index jika diperlukan."""
+    try:
+        await client.admin.command('ping')
+        # Membuat index untuk memastikan performa query yang cepat dan data yang unik
+        await settings_collection.create_index("key", unique=True)
+        await blacklist_collection.create_index("chat_id", unique=True)
+        print("[INFO] Koneksi database berhasil dan index dipastikan ada.")
+        return True
+    except Exception as e:
+        print(f"[ERROR] Inisialisasi database gagal: {e}")
+        return False
