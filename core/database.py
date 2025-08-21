@@ -11,7 +11,6 @@ DB_PATH = "data/vzoelubot.db"
 async def initialize_database():
     """Menginisialisasi database dan membuat tabel jika belum ada."""
     try:
-        # Langsung menggunakan aiosqlite.connect di dalam async with
         async with aiosqlite.connect(DB_PATH) as db:
             await db.execute("""
                 CREATE TABLE IF NOT EXISTS settings (
@@ -73,3 +72,9 @@ async def is_blacklisted(chat_id: int) -> bool:
         return await cursor.fetchone() is not None
 
 async def get_blacklist() -> List[Dict]:
+    """Mengambil semua chat yang ada di blacklist."""
+    async with aiosqlite.connect(DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cursor = await db.execute("SELECT * FROM blacklist")
+        rows = await cursor.fetchall()
+        return [dict(row) for row in rows]
