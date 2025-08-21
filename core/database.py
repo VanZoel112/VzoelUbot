@@ -73,7 +73,3 @@ async def is_blacklisted(chat_id: int) -> bool:
         return await cursor.fetchone() is not None
 
 async def get_blacklist() -> List[Dict]:
-    """Mengambil semua chat yang ada di blacklist."""
-    async with aiosqlite.connect(DB_PATH) as db:
-        db.row_factory = aiosqlite.Row
-        cursor = await db.execute("SELECT *
