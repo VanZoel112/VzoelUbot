@@ -4,13 +4,12 @@
 # Framework utama untuk userbot Telegram
 pyrogram
 
-# Driver asinkron untuk koneksi database MongoDB
-motor
+# Driver asinkron untuk database SQLite lokal
+aiosqlite
 
 # Untuk memuat variabel dari file .env
 python-dotenv
 
 # --- Pustaka untuk Pengembangan & Pengujian ---
-# Framework untuk menjalankan tes otomatis (digunakan oleh GitHub Actions)
 pytest
 pytest-asyncio
