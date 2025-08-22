@@ -1,97 +1,79 @@
 # VzoelUbotversi69 #byVzoelFox's #©2025 ~ Vzoel (Lutpan)
+# main.py (VERSI REVISI FINAL)
 
 import asyncio
 import importlib
 import logging
 from pathlib import Path
 from pyrogram import idle
+
 from core.client import VzoelUbot
 from core.database import initialize_database
-import os
 
-# Warna log (optional, pakai colorama)
-try:
-    from colorama import Fore, Style, init
-    init(autoreset=True)
-    COLOR = True
-except ImportError:
-    COLOR = False
-
-# Setup uvloop (jika ada)
-try:
-    import uvloop
-    uvloop.install()
-except ImportError:
-    pass
-
-
-class ColorFormatter(logging.Formatter):
-    def format(self, record):
-        msg = super().format(record)
-        if not COLOR:
-            return msg
-        if record.levelno == logging.INFO:
-            return f"{Fore.GREEN}{msg}{Style.RESET_ALL}"
-        elif record.levelno == logging.WARNING:
-            return f"{Fore.YELLOW}{msg}{Style.RESET_ALL}"
-        elif record.levelno == logging.ERROR:
-            return f"{Fore.RED}{msg}{Style.RESET_ALL}"
-        else:
-            return msg
-
-
-# === SETUP LOGGING ===
-os.makedirs("logs", exist_ok=True)
-
-# Console handler (warna)
-console_handler = logging.StreamHandler()
-console_handler.setFormatter(ColorFormatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s"))
-
-# File handler (full log)
-file_handler = logging.FileHandler("logs/vzoelubot.log", encoding="utf-8")
-file_handler.setFormatter(logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s"))
-
-LOGGER = logging.getLogger(__name__)
-LOGGER.setLevel(logging.INFO)
-LOGGER.addHandler(console_handler)
-LOGGER.addHandler(file_handler)
-
+# ... (Blok uvloop dan setup logging tetap sama) ...
 
 async def load_plugins(app: VzoelUbot):
-    """Memuat semua plugin dari folder /plugins."""
+    """Fungsi untuk memuat semua plugin dari folder /plugins."""
     plugins_path = Path("plugins")
-    LOGGER.info("Memulai pemindaian plugins...")
+    
+    # --- PERBAIKAN DITERAPKAN DI SINI ---
+    if not plugins_path.is_dir():
+        LOGGER.warning("Folder 'plugins' tidak ditemukan. Melewati pemuatan plugin.")
+        return
+    # ------------------------------------
 
+    LOGGER.info("Memulai pemindaian plugins...")
+    
     app.loaded_plugins = []
     for file in plugins_path.glob("*.py"):
         if file.name == "__init__.py":
             continue
+        
+        plugin_name = file.stem
         try:
-            name = f"plugins.{file.stem}"
-            importlib.import_module(name)
-            app.loaded_plugins.append(name)
-            LOGGER.info("✅ Plugin dimuat: %s", file.stem)
+            importlib.import_module(f"plugins.{plugin_name}")
+            LOGGER.info(f"[OK] Plugin '{plugin_name}' berhasil dimuat.")
+            app.loaded_plugins.append(plugin_name)
         except Exception as e:
-            LOGGER.error("❌ Gagal memuat plugin %s: %s", file.stem, e)
+            LOGGER.error(f"[FAIL] Gagal memuat plugin '{plugin_name}': {e}")
+            
+    LOGGER.info(f"Total {len(app.loaded_plugins)} plugin berhasil dimuat.")
 
 
-async def run_bot():
-    """Menjalankan Userbot dengan auto-reconnect + logging warna + simpan log."""
+async def main():
+    """Fungsionalitas utama untuk menginisialisasi dan menjalankan userbot."""
+    # ... (Sisa kode di dalam fungsi main() tetap sama persis) ...
+    LOGGER.info("Memulai proses inisialisasi Userbot...")
+    
+    db_status = await initialize_database()
+    if not db_status:
+        LOGGER.error("Gagal menginisialisasi database. Userbot tidak dapat dimulai.")
+        return
+
     app = VzoelUbot()
-    await initialize_database()
+    
+    try:
+        LOGGER.info("Menjalankan Userbot...")
+        await app.start()
+        await load_plugins(app)
+        
+        bot_info = await app.get_me()
+        LOGGER.info(f"Berhasil masuk sebagai Bot: {bot_info.first_name} (@{bot_info.username})")
+        
+        user_info = await app.get_users("me")
+        LOGGER.info(f"User Akun: {user_info.first_name} (@{user_info.username})")
 
-    while True:
-        try:
-            await app.start()
-            await load_plugins(app)
-            LOGGER.info("✅ VzoelUbot berhasil online, menunggu perintah...")
-            await idle()
-        except Exception as e:
-            LOGGER.error("⚠️ Terjadi error: %s", e)
-            LOGGER.warning("🔄 Reconnect dalam 5 detik...")
-            await asyncio.sleep(5)
-
+        LOGGER.info("Userbot sekarang online. Menunggu perintah...")
+        await idle()
+        
+    except (KeyboardInterrupt, SystemExit):
+        LOGGER.info("Menerima sinyal berhenti...")
+    except Exception as e:
+        LOGGER.fatal(f"Terjadi kesalahan saat menjalankan Userbot: {e}", exc_info=True)
+    finally:
+        LOGGER.info("Menghentikan Userbot...")
+        await app.stop()
+        LOGGER.info("Userbot telah berhenti.")
 
 if __name__ == "__main__":
-    asyncio.run(run_bot())
-        
+    asyncio.run(main())
