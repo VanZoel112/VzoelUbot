@@ -7,6 +7,7 @@ from pathlib import Path
 from pyrogram import idle
 from core.client import VzoelUbot
 from core.database import initialize_database
+import os
 
 # Warna log (optional, pakai colorama)
 try:
@@ -20,9 +21,8 @@ except ImportError:
 try:
     import uvloop
     uvloop.install()
-    logging.info("Menggunakan uvloop (performansi tinggi).")
 except ImportError:
-    logging.info("uvloop tidak ditemukan, fallback ke asyncio.")
+    pass
 
 
 class ColorFormatter(logging.Formatter):
@@ -40,13 +40,21 @@ class ColorFormatter(logging.Formatter):
             return msg
 
 
-# Setup logging
-handler = logging.StreamHandler()
-handler.setFormatter(ColorFormatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s"))
+# === SETUP LOGGING ===
+os.makedirs("logs", exist_ok=True)
+
+# Console handler (warna)
+console_handler = logging.StreamHandler()
+console_handler.setFormatter(ColorFormatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s"))
+
+# File handler (full log)
+file_handler = logging.FileHandler("logs/vzoelubot.log", encoding="utf-8")
+file_handler.setFormatter(logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s"))
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.INFO)
-LOGGER.addHandler(handler)
+LOGGER.addHandler(console_handler)
+LOGGER.addHandler(file_handler)
 
 
 async def load_plugins(app: VzoelUbot):
@@ -68,7 +76,7 @@ async def load_plugins(app: VzoelUbot):
 
 
 async def run_bot():
-    """Menjalankan Userbot dengan auto-reconnect + logging warna."""
+    """Menjalankan Userbot dengan auto-reconnect + logging warna + simpan log."""
     app = VzoelUbot()
     await initialize_database()
 
@@ -86,3 +94,4 @@ async def run_bot():
 
 if __name__ == "__main__":
     asyncio.run(run_bot())
+        
