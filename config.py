@@ -1,33 +1,15 @@
-# VzoelUbotversi69 #byVzoelFox's #©2025 ~ Vzoel (Lutpan)
-# config.py (VERSI FINAL & BERSIH)
+# Kredensial dari my.telegram.org
+API_ID=12345678
+API_HASH=abcdef1234567890abcdef1234567890
 
-import os
-from dotenv import load_dotenv
+# String Sesi yang dihasilkan dari generate_session.py
+SESSION_STRING=BAA...
 
-# Muat variabel dari file .env
-load_dotenv()
+# ID Telegram numerik Anda sebagai Owner
+OWNER_ID=1234567890
 
-# --- Konfigurasi Wajib ---
-API_ID = int(os.getenv("API_ID", 0))
-API_HASH = os.getenv("API_HASH", "")
-SESSION_STRING = os.getenv("SESSION_STRING", "")
-BOT_TOKEN = os.getenv("BOT_TOKEN", "")
-MONGO_DB_URI = os.getenv("MONGO_DB_URI", "")
-OWNER_ID = int(os.getenv("OWNER_ID", 0))
-PREFIX = os.getenv("PREFIX", ".")
+# Prefix awal untuk perintah
+PREFIX=.
 
-# --- Konfigurasi Opsional ---
-LOG_GROUP_ID = int(os.getenv("LOG_GROUP_ID", 0))
-
-# --- Validasi Kritis ---
-if not API_ID or not API_HASH:
-    print("[FATAL ERROR] API_ID atau API_HASH tidak ditemukan. Harap isi di file .env")
-    exit(1)
-
-if not SESSION_STRING:
-    print("[FATAL ERROR] SESSION_STRING tidak ditemukan. Harap generate dan masukkan di file .env")
-    exit(1)
-
-if not OWNER_ID:
-    print("[FATAL ERROR] OWNER_ID tidak ditemukan. Harap isi di file .env")
-    exit(1)
+# ID grup untuk log (opsional)
+LOG_GROUP_ID=-1001234567890
