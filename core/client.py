@@ -1,43 +1,25 @@
-# VzoelUbotversi69 #byVzoelFox's #©2025 ~ Vzoel (Lutpan)
-
-import logging
-import time
+import asyncio
 from pyrogram import Client
 
-from config import (
-    API_ID,
-    API_HASH,
-    OWNER_ID,
-    SESSION_STRING,
-)
+async def main():
+    try:
+        api_id = int(input("Masukkan API ID Anda: "))
+        api_hash = input("Masukkan API HASH Anda: ")
+    except ValueError:
+        print("API ID harus berupa angka.")
+        return
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
-LOGGER = logging.getLogger(__name__)
+    # Menggunakan ":memory:" berarti sesi tidak akan disimpan sebagai file
+    async with Client(":memory:", api_id=api_id, api_hash=api_hash) as app:
+        print("\nSilakan masukkan nomor telepon, kode, dan kata sandi Anda...")
+        
+        session_string = await app.export_session_string()
+        
+        print("\n================================================================")
+        print("         BERHASIL! Salin string sesi di bawah ini:")
+        print("================================================================")
+        print(session_string)
+        print("\n")
 
-
-class VzoelUbot(Client):
-    """Kelas Userbot utama."""
-    def __init__(self, prefix="."):
-        super().__init__(
-            name="VzoelUbot",
-            api_id=API_ID,
-            api_hash=API_HASH,
-            session_string=SESSION_STRING,
-            workers=24,
-            sleep_threshold=180,
-        )
-        self.LOGGER = LOGGER
-        self.owner_id = OWNER_ID
-        self.prefix = prefix
-        self.start_time = time.time()
-
-    async def start(self):
-        await super().start()
-        self.LOGGER.info("Userbot telah berhasil dimulai.")
-
-    async def stop(self):
-        await super().stop()
-        self.LOGGER.info("Userbot telah berhasil dihentikan.")
+if __name__ == "__main__":
+    asyncio.run(main())
