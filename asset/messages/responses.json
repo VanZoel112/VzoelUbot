@@ -1,0 +1,32 @@
+{
+  "PING": {
+    "PROCESSING_WORDS": [
+      "Pinging...",
+      "Menghubungi server Telegram...",
+      "Menghitung latensi...",
+      "Memverifikasi koneksi...",
+      "Sedang dalam proses...",
+      "Hampir selesai..."
+    ],
+    "RESULT": "**Pong!**\n`Latensi: {latency} ms`"
+  },
+  "ALIVE": {
+    "CAPTION": "꧁☬×º°”˜`”°º× 𝑽𝒛𝒐𝒆𝒍 𝑭𝒐𝒙'𝒔 𝒂𝒔𝒔𝒊𝒔𝒕𝒂𝒏𝒕 ×º°”˜`”°º×☬꧂\n\n**Founder Ubot :** Vzoel fox's\n**Onwer :** [{user_name}](tg://user?id={user_id})\n**Durasi :** `{uptime}`\n**Versi :** `{version}`\n**Pyrogram with Python language**\n\n~©2025 Vzoel (Lutpan)"
+  },
+  "HOAM": {
+    "ANIMATION": [
+      "hoaaammm membosankan",
+      "sebel",
+      "gabut",
+      "pengen makan orang",
+      "gtw cape"
+    ]
+  },
+  "BLACKLIST": {
+    "ADDED": "Berhasil menambahkan `{chat_id}` ke daftar hitam.",
+    "REMOVED": "Berhasil menghapus `{chat_id}` dari daftar hitam.",
+    "LIST_EMPTY": "Daftar hitam kosong.",
+    "LIST_HEADER": "**Daftar Hitam Gcast:**\n\n",
+    "LIST_ITEM": "• **ID:** `{chat_id}`\n   **Alasan:** `{reason}`\n"
+  }
+}
