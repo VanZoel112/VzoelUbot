@@ -1,15 +1,4 @@
-# VzoelUbotversi69 #byVzoelFox's #©2025 ~ Vzoel (Lutpan)
-
-# --- Pustaka Inti ---
-# Framework utama untuk userbot Telegram
+# Dependensi inti yang wajib untuk menjalankan bot.
 pyrogram
-
-# Driver asinkron untuk database SQLite lokal
 aiosqlite
-
-# Untuk memuat variabel dari file .env
 python-dotenv
-
-# --- Pustaka untuk Pengembangan & Pengujian ---
-pytest
-pytest-asyncio
