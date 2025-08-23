@@ -1,15 +1,17 @@
-# Kredensial dari my.telegram.org
-API_ID=12345678
-API_HASH=abcdef1234567890abcdef1234567890
+# VzoelUbotversi69 #byVzoelFox's #©2025 ~ Vzoel (Lutpan)
 
-# String Sesi yang dihasilkan dari generate_session.py
-SESSION_STRING=BAA...
+import os
+from dotenv import load_dotenv
 
-# ID Telegram numerik Anda sebagai Owner
-OWNER_ID=1234567890
+load_dotenv()
 
-# Prefix awal untuk perintah
-PREFIX=.
+API_ID = int(os.getenv("API_ID", 0))
+API_HASH = os.getenv("API_HASH", "")
+SESSION_STRING = os.getenv("SESSION_STRING", "")
+OWNER_ID = int(os.getenv("OWNER_ID", 0))
+PREFIX = os.getenv("PREFIX", ".")
+LOG_GROUP_ID = int(os.getenv("LOG_GROUP_ID", 0))
 
-# ID grup untuk log (opsional)
-LOG_GROUP_ID=-1001234567890
+if not API_ID or not API_HASH or not SESSION_STRING or not OWNER_ID:
+    print("[FATAL ERROR] Harap isi semua variabel wajib di file .env")
+    exit(1)
