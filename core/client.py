@@ -6,8 +6,8 @@ async def main():
     print("=== TELEGRAM SESSION STRING GENERATOR ===\n")
     
     try:
-        api_id = int(input("Masukkan API ID Anda: "))
-        api_hash = input("Masukkan API HASH Anda: ").strip()
+        api_id = int(input("29919905 "))
+        api_hash = input("717957f0e3ae20a7db004d08b66bfd30 ").strip()
         
         if not api_hash:
             print("API HASH tidak boleh kosong!")
