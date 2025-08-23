@@ -15,7 +15,7 @@ from pyrogram.errors import (
 # ============================================
 API_ID = 29919905  # GANTI DISINI dengan API ID Anda (contoh: 1234567)
 API_HASH = "717957f0e3ae20a7db004d08b66bfd30"  # GANTI DISINI dengan API HASH Anda (contoh: "abcd1234efgh5678")
-SESSION_STRING = ""  # BIARKAN KOSONG DULU - akan diisi dari client.py
+SESSION_STRING = "BQHIiqEAObfrXJ8CaKhDVJZgxQfGLY3R0nuR8YVRLj6h7r7Vy8tW0lWeZ-fAmQtJ6_61jRffQ5fl5mhAf_Ou74ONOJ7VkYydFhLgqQlrKSR12XOotiwseR11YAOqOUJMp4OqR2DC0isN3Sv4lh9F2l_2xhzFd1egVI2e-B1ZKf_F_Zm8bXtZT_slHOZOIfXOxJx6CXYrutW5mxaU1AAuV-5DV1TE5JFNR5QM136h4FqHxLvHZrkGsMfb0_p7p5_o-QSxf91gcIkIGlSIgeTYTNN-llfDTRiF9pjXQRCuqKIihvmM7h0M2moBD7pe_05MLhChi871lTTiamzU-EpyKTOIK6y2zAAAAAHTuBoQAA"  # BIARKAN KOSONG DULU - akan diisi dari client.py
 
 # ============================================
 # VALIDASI KONFIGURASI
