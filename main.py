@@ -1,4 +1,4 @@
-main.py (Skrip Utama Userbot)Ini adalah bagian terpenting. Saya mempertahankan semua kode bagus Anda dan menambahkan bagian yang hilang untuk menangani perintah.import asyncio
+#main(Skrip Utama Userbot)Ini adalah bagian terpenting. Saya mempertahankan semua kode bagus Anda dan menambahkan bagian yang hilang untuk menangani perintah.import asyncio
 import sys
 import signal
 from pyrogram import Client, idle, filters  # [REVISI] Menambahkan 'filters'
@@ -107,3 +107,4 @@ if __name__ == "__main__":
         print("\n🏁 Program selesai.")
         sys.exit(0)
     
+
