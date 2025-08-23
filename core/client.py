@@ -1,20 +1,16 @@
 # VzoelUbotversi69 #byVzoelFox's #©2025 ~ Vzoel (Lutpan)
-# core/client.py (VERSI FINAL & PERBAIKAN USERBOT)
 
 import logging
 import time
 from pyrogram import Client
 
-# Impor semua yang dibutuhkan dari config.py
 from config import (
     API_ID,
     API_HASH,
     OWNER_ID,
-    PREFIX,
     SESSION_STRING,
 )
 
-# Konfigurasi logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -24,23 +20,18 @@ LOGGER = logging.getLogger(__name__)
 
 class VzoelUbot(Client):
     """Kelas Userbot utama."""
-    def __init__(self):
-        # --- PERUBAHAN KRUSIAL DI SINI ---
-        # Kita menghapus argumen bot_token untuk memastikan
-        # ini berjalan murni sebagai user, bukan bot.
+    def __init__(self, prefix="."):
         super().__init__(
             name="VzoelUbot",
             api_id=API_ID,
             api_hash=API_HASH,
-            session_string=SESSION_STRING, # Hanya menggunakan string sesi
+            session_string=SESSION_STRING,
             workers=24,
             sleep_threshold=180,
         )
-        # ------------------------------------
-        
         self.LOGGER = LOGGER
         self.owner_id = OWNER_ID
-        self.prefix = PREFIX
+        self.prefix = prefix
         self.start_time = time.time()
 
     async def start(self):
