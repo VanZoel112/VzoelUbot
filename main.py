@@ -1,210 +1,227 @@
 import asyncio
 import sys
 import signal
+import traceback
 from pyrogram import Client, idle
 from pyrogram.errors import (
     AuthKeyUnregistered, 
     AuthKeyInvalid, 
     SessionExpired,
     ApiIdInvalid,
-    PhoneNumberInvalid
+    PhoneNumberInvalid,
+    FloodWait
 )
 
 # ============================================
 # KONFIGURASI MANUAL - GANTI DENGAN DATA ANDA
 # ============================================
-API_ID = 29919905  # GANTI DISINI dengan API ID Anda (contoh: 1234567)
-API_HASH = "717957f0e3ae20a7db004d08b66bfd30"  # GANTI DISINI dengan API HASH Anda (contoh: "abcd1234efgh5678")
-SESSION_STRING = "BQHIiqEAObfrXJ8CaKhDVJZgxQfGLY3R0nuR8YVRLj6h7r7Vy8tW0lWeZ-fAmQtJ6_61jRffQ5fl5mhAf_Ou74ONOJ7VkYydFhLgqQlrKSR12XOotiwseR11YAOqOUJMp4OqR2DC0isN3Sv4lh9F2l_2xhzFd1egVI2e-B1ZKf_F_Zm8bXtZT_slHOZOIfXOxJx6CXYrutW5mxaU1AAuV-5DV1TE5JFNR5QM136h4FqHxLvHZrkGsMfb0_p7p5_o-QSxf91gcIkIGlSIgeTYTNN-llfDTRiF9pjXQRCuqKIihvmM7h0M2moBD7pe_05MLhChi871lTTiamzU-EpyKTOIK6y2zAAAAAHTuBoQAA"  # BIARKAN KOSONG DULU - akan diisi dari client.py
+API_ID = 29919905  # GANTI DISINI dengan API ID Anda
+API_HASH = "717957f0e3ae20a7db004d08b66bfd30"  # GANTI DISINI dengan API HASH Anda
+SESSION_STRING = "BQHIiqEAObfrXJ8CaKhDVJZgxQfGLY3R0nuR8YVRLj6h7r7Vy8tW0lWeZ-fAmQtJ6_61jRffQ5fl5mhAf_Ou74ONOJ7VkYydFhLgqQlrKSR12XOotiwseR11YAOqOUJMp4OqR2DC0isN3Sv4lh9F2l_2xhzFd1egVI2e-B1ZKf_F_Zm8bXtZT_slHOZOIfXOxJx6CXYrutW5mxaU1AAuV-5DV1TE5JFNR5QM136h4FqHxLvHZrkGsMfb0_p7p5_o-QSxf91gcIkIGlSIgeTYTNN-llfDTRiF9pjXQRCuqKIihvmM7h0M2moBD7pe_05MLhChi871lTTiamzU-EpyKTOIK6y2zAAAAAHTuBoQAA"  # ISI dengan session string dari client.py
 
 # ============================================
-# VALIDASI KONFIGURASI
+# DEBUG FUNCTIONS
 # ============================================
-def validate_config():
-    """Validasi konfigurasi sebelum memulai bot"""
-    errors = []
+def debug_session_string(session_string):
+    """Debug session string untuk melihat apakah valid"""
+    if not session_string:
+        return "❌ Session string kosong"
     
+    if len(session_string) < 300:
+        return f"❌ Session string terlalu pendek ({len(session_string)} karakter, minimal 300)"
+    
+    if not session_string.startswith("1"):
+        return f"❌ Session string tidak dimulai dengan '1' (dimulai dengan: '{session_string[:10]}')"
+    
+    # Cek apakah mengandung karakter yang valid untuk base64
+    import string
+    valid_chars = string.ascii_letters + string.digits + "+/="
+    invalid_chars = [c for c in session_string if c not in valid_chars]
+    if invalid_chars:
+        return f"❌ Session string mengandung karakter tidak valid: {set(invalid_chars)}"
+    
+    return f"✅ Session string tampak valid ({len(session_string)} karakter)"
+
+def validate_config_detailed():
+    """Validasi konfigurasi dengan detail lebih lengkap"""
+    print("🔍 VALIDASI KONFIGURASI DETAIL:")
+    print("-" * 50)
+    
+    # Check API_ID
+    print(f"📋 API_ID: {API_ID}")
     if API_ID == 12345:
-        errors.append("⚠️  API_ID masih menggunakan nilai default (12345)")
-        errors.append("    Ganti dengan API ID asli Anda di baris 13")
+        print("   ❌ Masih menggunakan nilai default!")
+        return False
+    elif not isinstance(API_ID, int):
+        print("   ❌ Harus berupa integer!")
+        return False
+    elif API_ID <= 0:
+        print("   ❌ Harus lebih besar dari 0!")
+        return False
+    else:
+        print("   ✅ Valid")
     
+    # Check API_HASH
+    print(f"📋 API_HASH: {API_HASH}")
     if API_HASH == "your_api_hash_here":
-        errors.append("⚠️  API_HASH masih menggunakan nilai default")
-        errors.append("    Ganti dengan API HASH asli Anda di baris 14")
-        
-    if not SESSION_STRING or SESSION_STRING == "":
-        errors.append("⚠️  SESSION_STRING kosong")
-        errors.append("    Jalankan client.py dulu untuk mendapatkan session string")
-        errors.append("    Kemudian isi SESSION_STRING di baris 15")
+        print("   ❌ Masih menggunakan nilai default!")
+        return False
+    elif len(API_HASH) != 32:
+        print(f"   ❌ Panjang tidak sesuai ({len(API_HASH)}, seharusnya 32)!")
+        return False
+    else:
+        print("   ✅ Valid")
     
-    if SESSION_STRING and len(SESSION_STRING) < 300:
-        errors.append("⚠️  SESSION_STRING tidak valid (terlalu pendek)")
+    # Check SESSION_STRING
+    print(f"📋 SESSION_STRING: {SESSION_STRING[:50]}{'...' if len(SESSION_STRING) > 50 else ''}")
+    session_check = debug_session_string(SESSION_STRING)
+    print(f"   {session_check}")
     
-    return errors
+    if "❌" in session_check:
+        return False
+    
+    print("-" * 50)
+    return True
 
 # ============================================
-# INISIALISASI CLIENT
+# MAIN FUNCTION WITH DETAILED ERROR HANDLING
 # ============================================
-def create_client():
-    """Membuat instance client Pyrogram"""
+async def main():
+    """Fungsi utama dengan error handling detail"""
+    
+    print("=" * 70)
+    print("🤖 VZOELUBOT - DEBUG MODE")
+    print("=" * 70)
+    
+    # Validasi konfigurasi detail
+    if not validate_config_detailed():
+        print("\n❌ KONFIGURASI TIDAK VALID!")
+        print("\n💡 LANGKAH PERBAIKAN:")
+        print("1. Pastikan API_ID sudah diisi dengan angka yang benar")
+        print("2. Pastikan API_HASH sudah diisi (32 karakter)")
+        print("3. Pastikan SESSION_STRING sudah diisi dari client.py")
+        print("\n🔧 Contoh konfigurasi yang benar:")
+        print("   API_ID = 1234567")
+        print('   API_HASH = "abcd1234efgh5678ijkl9012mnop3456"')
+        print('   SESSION_STRING = "1BVtsOHwAa1T...string_panjang_dari_client"')
+        return
+    
+    print("✅ Semua konfigurasi valid!")
+    
+    # Test membuat client tanpa memulainya
+    print("\n🔧 Testing client creation...")
     try:
-        return Client(
-            name="vzoelubot",
+        app = Client(
+            name="vzoelubot_debug",
             api_id=API_ID,
             api_hash=API_HASH,
             session_string=SESSION_STRING,
-            in_memory=True  # Tidak menyimpan session ke file
+            in_memory=True,
+            test_mode=False  # Pastikan tidak dalam test mode
         )
+        print("✅ Client berhasil dibuat!")
     except Exception as e:
-        print(f"❌ Error membuat client: {e}")
-        return None
-
-# ============================================
-# SIGNAL HANDLER
-# ============================================
-def signal_handler(signum, frame):
-    """Handler untuk menangani sinyal sistem"""
-    print(f"\n⚠️  Menerima sinyal {signum}. Memulai shutdown...")
-
-# ============================================
-# MAIN FUNCTION
-# ============================================
-async def main():
-    """Fungsi utama untuk menjalankan userbot"""
-    
-    # Banner
-    print("=" * 60)
-    print("🤖 VZOELUBOT - TELEGRAM USERBOT")
-    print("=" * 60)
-    
-    # Tampilkan konfigurasi saat ini
-    print("📋 KONFIGURASI SAAT INI:")
-    print(f"   API_ID: {API_ID}")
-    print(f"   API_HASH: {'✅ Sudah diisi' if API_HASH != 'your_api_hash_here' else '❌ Belum diisi'}")
-    print(f"   SESSION_STRING: {'✅ Sudah diisi' if SESSION_STRING else '❌ Belum diisi'}")
-    print("-" * 60)
-    
-    # Validasi konfigurasi
-    print("🔍 Memvalidasi konfigurasi...")
-    config_errors = validate_config()
-    
-    if config_errors:
-        print("\n❌ KESALAHAN KONFIGURASI:")
-        for error in config_errors:
-            print(f"   {error}")
-        
-        print("\n💡 CARA MEMPERBAIKI:")
-        print("   1. Buka file main.py dengan text editor")
-        print("   2. Ganti API_ID di baris 13 dengan ID asli Anda")
-        print("   3. Ganti API_HASH di baris 14 dengan HASH asli Anda") 
-        print("   4. Jika belum punya session string:")
-        print("      • Jalankan: python3 client.py")
-        print("      • Copy session string yang dihasilkan")
-        print("      • Paste di SESSION_STRING baris 15")
-        print("   5. Save file dan jalankan ulang: python3 main.py")
+        print(f"❌ Error saat membuat client: {e}")
+        print(f"📝 Error type: {type(e).__name__}")
+        print(f"📍 Traceback: {traceback.format_exc()}")
         return
     
-    print("✅ Konfigurasi valid!")
-    
-    # Membuat client
-    print("🔄 Membuat client Pyrogram...")
-    app = create_client()
-    
-    if not app:
-        print("❌ Gagal membuat client!")
-        return
-    
+    # Coba start client dengan error handling detail
+    print("\n🚀 Memulai client...")
     try:
-        print("🚀 Memulai userbot...")
         await app.start()
+        print("✅ Client berhasil dimulai!")
         
-        # Mendapatkan info user
+        # Test basic functionality
+        print("🔍 Testing basic functionality...")
         me = await app.get_me()
-        print(f"✅ Userbot berhasil dimulai!")
-        print(f"👤 Logged in as: {me.first_name}")
-        if me.last_name:
-            print(f"    Full name: {me.first_name} {me.last_name}")
-        if me.username:
-            print(f"    Username: @{me.username}")
+        
+        print(f"\n🎉 BERHASIL TERHUBUNG!")
+        print(f"👤 Name: {me.first_name} {me.last_name or ''}")
+        print(f"🆔 ID: {me.id}")
         print(f"📱 Phone: {me.phone_number}")
-        print(f"🆔 User ID: {me.id}")
+        if me.username:
+            print(f"👨‍💼 Username: @{me.username}")
         
-        print("\n🎯 Bot sedang berjalan. Tekan Ctrl+C untuk menghentikan...")
-        print("-" * 60)
+        print(f"\n🌟 Userbot siap digunakan!")
+        print("⏸️  Tekan Ctrl+C untuk menghentikan...")
+        print("-" * 70)
         
-        # Menjalankan bot (idle sampai dihentikan)
+        # Keep running
         await idle()
         
     except AuthKeyUnregistered:
-        print("❌ Session string tidak valid atau sudah expired!")
-        print("💡 Solusi: Jalankan client.py untuk membuat session string baru.")
+        print("❌ AUTH KEY ERROR: Session tidak terdaftar!")
+        print("💡 Solusi: Buat session baru dengan client.py")
         
     except AuthKeyInvalid:
-        print("❌ Session string tidak valid!")
-        print("💡 Solusi: Pastikan session string yang Anda gunakan benar.")
+        print("❌ AUTH KEY ERROR: Session tidak valid!")
+        print("💡 Solusi: Pastikan session string benar dan lengkap")
         
     except SessionExpired:
-        print("❌ Session sudah expired!")
-        print("💡 Solusi: Jalankan client.py untuk membuat session string baru.")
+        print("❌ SESSION ERROR: Session sudah expired!")
+        print("💡 Solusi: Buat session baru dengan client.py")
         
     except ApiIdInvalid:
-        print("❌ API ID tidak valid!")
-        print("💡 Solusi: Periksa kembali API_ID di konfigurasi (baris 13).")
+        print("❌ API ERROR: API ID tidak valid!")
+        print("💡 Solusi: Periksa API_ID di my.telegram.org")
         
-    except PhoneNumberInvalid:
-        print("❌ Nomor telepon tidak valid!")
+    except FloodWait as e:
+        print(f"❌ FLOOD WAIT: Tunggu {e.value} detik sebelum mencoba lagi")
         
-    except KeyboardInterrupt:
-        print("\n⚠️  Keyboard interrupt diterima...")
+    except ConnectionError as e:
+        print(f"❌ CONNECTION ERROR: {e}")
+        print("💡 Solusi: Periksa koneksi internet")
         
     except Exception as e:
-        print(f"❌ Error tak terduga: {e}")
+        error_msg = str(e)
+        print(f"❌ UNEXPECTED ERROR: {error_msg}")
         print(f"📝 Error type: {type(e).__name__}")
         
-        # Tampilkan kemungkinan solusi berdasarkan error
-        error_str = str(e).lower()
-        if "unpack" in error_str:
-            print("\n💡 Kemungkinan penyebab error 'unpack':")
-            print("   • Session string rusak atau tidak lengkap")
-            print("   • API credentials tidak cocok dengan session")
-            print("   • Versi Pyrogram tidak kompatibel")
-            print("   • Coba buat session string baru dengan client.py")
+        # Analisis error spesifik
+        if "unpack requires a buffer" in error_msg:
+            print("\n🔍 ANALISIS ERROR 'unpack requires a buffer':")
+            print("   • Session string mungkin rusak atau tidak lengkap")
+            print("   • API_ID dan API_HASH tidak cocok dengan session")
+            print("   • Format session string tidak valid")
+            print("\n💡 SOLUSI:")
+            print("   1. Hapus session string lama")
+            print("   2. Jalankan client.py untuk buat session baru")
+            print("   3. Pastikan API_ID dan API_HASH sama persis")
+            print("   4. Copy-paste session string dengan hati-hati")
+            
+        elif "invalid session" in error_msg.lower():
+            print("\n💡 SOLUSI: Session tidak valid, buat session baru")
+            
+        elif "network" in error_msg.lower():
+            print("\n💡 SOLUSI: Periksa koneksi internet")
+        
+        print(f"\n📍 Full traceback:\n{traceback.format_exc()}")
         
     finally:
-        print("\n🛑 Memulai proses shutdown...")
-        
-        # Cek apakah client masih terhubung
+        print("\n🛑 Cleanup process...")
         try:
-            if app.is_connected:
-                print("🔄 Menghentikan client...")
+            if 'app' in locals() and hasattr(app, 'is_connected') and app.is_connected:
+                print("🔄 Stopping client...")
                 await app.stop()
-                print("✅ Client berhasil dihentikan.")
+                print("✅ Client stopped successfully")
             else:
-                print("ℹ️  Client sudah terputus.")
-        except Exception as e:
-            print(f"⚠️  Error saat menghentikan client: {e}")
+                print("ℹ️  Client already disconnected")
+        except Exception as cleanup_error:
+            print(f"⚠️  Cleanup error: {cleanup_error}")
         
-        print("👋 Userbot telah dihentikan. Terima kasih!")
+        print("👋 Program finished!")
 
 # ============================================
 # ENTRY POINT
 # ============================================
 if __name__ == "__main__":
-    # Setup signal handlers
-    signal.signal(signal.SIGINT, signal_handler)
-    signal.signal(signal.SIGTERM, signal_handler)
-    
     try:
-        # Jalankan main function
+        print("🔧 Starting in debug mode...")
         asyncio.run(main())
-        
     except KeyboardInterrupt:
-        print("\n👋 Program dihentikan oleh user.")
-        
+        print("\n\n👋 Program interrupted by user")
     except Exception as e:
-        print(f"\n❌ Error di level tertinggi: {e}")
+        print(f"\n❌ Top-level error: {e}")
+        print(f"📍 Traceback: {traceback.format_exc()}")
         sys.exit(1)
-        
-    finally:
-        print("\n🏁 Program selesai.")
-        sys.exit(0)
