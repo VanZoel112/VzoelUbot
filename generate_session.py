@@ -1,3 +1,5 @@
+from pyrogram import Client
+
 # Ganti dengan API credentials Anda
 api_id = 29919905
 api_hash = "717957f0e3ae20a7db004d08b66bfd30"
