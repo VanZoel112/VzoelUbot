@@ -17,7 +17,7 @@ from pyrogram.errors import (
 # ============================================
 API_ID = 29919905  # GANTI DISINI dengan API ID Anda
 API_HASH = "717957f0e3ae20a7db004d08b66bfd30"  # GANTI DISINI dengan API HASH Anda
-SESSION_STRING = "BQHIiqEApc1CieURRXCFf_G3sVV7XnzIVF0_tpm09-stINl92jP3JIl9nfQc_Yhc2IaNXz60BqQuvMA6r5FyxYC7d2z1xPTWGaKYz2xkS8uLkRFmEljlhZFMLjarelmH4PGRdp7LotzL-8ka0EV1oVB8UHDECYSlWxvA6Vs-O125xqEUqjRv4Ol2XOhrg7JxSENGc7GXlweOtjyyLyEdBQirSviJfFA5xKwPLhkqoe0oC3FfsG2nHU_EyuhEC1qjcarNpoOuCstUMumU92389OJ-j65E3kLtERojhHb0C_CoV3K5un__rrEQQ-anVH42BBAIgH0pihQXrBo3hWHu0RrX9WWfqQAAAAHTuBoQAA"  # ISI dengan session string dari client.py
+SESSION_STRING = "BQHIiqEAOKSDyIjv1Kuc6GSdVJlamdVLp6yCCEcyebPZ6lEondK0eBXGpvEQ0f1Pde74ALDbwqSSrYOoPQqKgbFsUO1wAk0EtevFAACsfZFduVbDKygA9JNs8PbpL9vk7swrPBqRMLUMwSF2rBodXQ-EPHW101GpPZVGqWw7wBA6O6ZgMeXXGoXRKRTfwor0AorgBvMbkBkPxdM_FKqYyp6IB3IEcKI8NAFd4uat64XW2T_SonWiztn-0lvBVuyc6LGHqLyUjFpfb7hqQ-vPwoHkQ9IK-8pNTR6AVX79nP-WOCL6QN-p6A76xyu_bid8fIZH_l0a8"  # ISI dengan session string dari client.py
 
 # ============================================
 # DEBUG FUNCTIONS
@@ -101,9 +101,9 @@ async def main():
         print("2. Pastikan API_HASH sudah diisi (32 karakter)")
         print("3. Pastikan SESSION_STRING sudah diisi dari client.py")
         print("\n🔧 Contoh konfigurasi yang benar:")
-        print("   API_ID = 1234567")
-        print('   API_HASH = "abcd1234efgh5678ijkl9012mnop3456"')
-        print('   SESSION_STRING = "1BVtsOHwAa1T...string_panjang_dari_client"')
+        print("   API_ID = 29919905")
+        print('   API_HASH = "717957f0e3ae20a7db004d08b66bfd30"')
+        print('   SESSION_STRING = "BQHIiqEAOKSDyIjv1Kuc6GSdVJlamdVLp6yCCEcyebPZ6lEondK0eBXGpvEQ0f1Pde74ALDbwqSSrYOoPQqKgbFsUO1wAk0EtevFAACsfZFduVbDKygA9JNs8PbpL9vk7swrPBqRMLUMwSF2rBodXQ-EPHW101GpPZVGqWw7wBA6O6ZgMeXXGoXRKRTfwor0AorgBvMbkBkPxdM_FKqYyp6IB3IEcKI8NAFd4uat64XW2T_SonWiztn-0lvBVuyc6LGHqLyUjFpfb7hqQ-vPwoHkQ9IK-8pNTR6AVX79nP-WOCL6QN-p6A76xyu_bid8fIZH_l0a8"')
         return
     
     print("✅ Semua konfigurasi valid!")
@@ -226,3 +226,4 @@ if __name__ == "__main__":
         print(f"📍 Traceback: {traceback.format_exc()}")
 
         sys.exit(1)
+
